@@ -255,7 +255,7 @@
       }
     }
 
-    // 取得したデータをフォルダごとに分類
+   // 取得したデータをフォルダごとに分類
     function processGitHubData(tree) {
       repositoryData = {};
       
@@ -264,6 +264,13 @@
         if (item.type === 'blob' && item.path !== 'index.html') {
           const pathParts = item.path.split('/');
           const fileName = pathParts.pop();
+
+          // ▼▼ ここを追加：readme.md (大文字小文字問わず) を除外 ▼▼
+          if (fileName.toLowerCase() === 'readme.md') {
+            return; // 処理をスキップして次のファイルへ
+          }
+          // ▲▲ ここまで ▲▲
+
           const folderName = pathParts.length > 0 ? pathParts[0] : "ルート(直下)"; // 第一階層をフォルダ名とする
 
           if (!repositoryData[folderName]) {
@@ -370,7 +377,7 @@
 
         // 閲覧（開く）ボタン (全ファイル共通)
         const viewLink = document.createElement('a');
-        viewLink.href = file.path; // GitHub Pages上の相対パス
+        viewLink.href = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${file.path}`;
         viewLink.className = 'btn-action btn-view';
         viewLink.target = '_blank';
         viewLink.textContent = ext === 'html' ? '開く' : '閲覧';
@@ -379,7 +386,7 @@
         // PDFなど、HTML以外のファイルにはダウンロードボタンを付与
         if (ext !== 'html') {
           const dlLink = document.createElement('a');
-          dlLink.href = file.path;
+          dlLink.href = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${file.path}`;
           dlLink.download = file.name;
           dlLink.className = 'btn-action btn-dl';
           dlLink.textContent = '保存';
