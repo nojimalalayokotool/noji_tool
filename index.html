@@ -293,22 +293,46 @@
       const container = document.getElementById('folder-buttons');
       container.innerHTML = '';
 
+      // フォルダ表示名のマッピング定義
+      const folderLabels = {
+        "customer": "お客様用",
+        "staff": "スタッフ用",
+        "お客様用": "お客様用",
+        "スタッフ用": "スタッフ用"
+      };
+
       for (const folderName in repositoryData) {
         const btn = document.createElement('button');
         btn.className = 'btn-main';
-        // フォルダ名が manual なら「Manual」などのように表示、マッピングがあればマッピングを優先してもOK
-        btn.textContent = (folderName === 'manual' ? 'マニュアル (PDF)' : 
-                          folderName === 'html' ? 'ツール (HTML)' : folderName) + ` (${repositoryData[folderName].length})`;
+        
+        // 表示するフォルダ名を取得（設定がない場合はそのままのフォルダ名）
+        const label = folderLabels[folderName] || folderName;
+        btn.textContent = `${label} (${repositoryData[folderName].length})`;
         
         btn.onclick = () => {
+          // スタッフ用フォルダの場合はパスワード確認を行う
+          if (folderName === 'staff' || folderName === 'スタッフ用') {
+            const inputPassword = prompt('パスワードを入力してください:');
+            
+            // キャンセルされた場合やパスワードが不一致の場合
+            if (inputPassword === null) {
+              return; // 処理を中止
+            }
+            if (inputPassword !== '046') {
+              alert('パスワードが正しくありません。');
+              return; // 一覧画面を開かずに終了
+            }
+          }
+
           currentFolder = folderName;
-          document.getElementById('list-title').textContent = folderName + ' 一覧';
+          document.getElementById('list-title').textContent = label + ' 一覧';
           showPage('list');
         };
         container.appendChild(btn);
       }
     }
 
+    
     // ページの表示切り替え
     function showPage(pageId) {
       document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
